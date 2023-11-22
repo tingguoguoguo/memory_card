@@ -5,18 +5,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       padding: 0;
       margin: 0;
       height: 100vh;
       background: linear-gradient(-45deg, rgba(173, 238, 255, 1) 0%, rgba(255, 215, 242, 1) 100%);
+      cursor: url(./cursor1.png) 50 50, auto;
     }
 
     #game {
       display: flex;
       flex-wrap: wrap;
-      cursor: url(./cursor1.png) 50 50, auto;
     }
 
     .card {
@@ -36,7 +41,6 @@
       background-repeat: no-repeat;
       background-position: center;
       position: absolute;
-
       backface-visibility: hidden;
 
     }
@@ -60,23 +64,33 @@
     #info {
       display: flex;
       justify-items: flex-start;
-      align-items: flex-start;
+      align-items: center;
       position: absolute;
       bottom: 1rem;
       right: 0.4rem;
-      width: 1200px;
+      width: 1550px;
       height: 350px;
-      /* background: #000; */
+      /* border: 1px solid */
     }
 
     #info img {
       height: 350px;
+      box-shadow: 10px 10px 15px #494949;
     }
 
     #info p {
-      margin: 24px;
-      font-size: 2rem;
+      margin-left: 20px;
+      font-size: 1.5rem;
       color: black;
+    }
+
+    #count {
+      width: 500px;
+      height: 350px;
+      font-family: 'RocknRoll One', sans-serif;
+      text-align: center;
+      font-size: 1.5rem;
+      /* background: #c47e7e; */
     }
   </style>
 </head>
@@ -88,14 +102,26 @@
     <div class="card-back"></div>
   </div> -->
   <div id="info">
+    <div id="count">
+      <h1>Moves: <span id="moves"></span> </h1>
+      <h1>Time: <span id="time"></span>s</h1>
+    </div>
     <img id="infoImage" src="">
     <p id="infoText"></p>
   </div>
   <div id="game">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.all.min.js'
+      integrity='sha512-zB7yJLSASiSevQmWCrQaq+z/f5zRIa884hwWgmK1oI3MfolIzKcpDtyfBsrGqUi/hMCObVwr/+SZTByOqh0zkQ=='
+      crossorigin='anonymous'></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
       integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
       crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+      let clickCount = 0
+      let time = 0
+      let timer = 0
+      let timerStarted = false;
+
       const cardDescriptions = [
         ["他有一隻名叫 Kkuma 的狗，他對待她就像對待自己的女兒一樣。", "他認為真實的自己崔勝哲和他的舞台角色S.Coups都是他的重要組成部分。", "在成為十七號成員之前，他訓練了六年。", "他在日本酒吧最喜歡的飲料是生啤酒。", "他的性格類型是ISTP，但他曾經是INFP。", "他曾經擔心失去人氣，但現在不再擔心了。"],
         ["在他的房間裡，他希望有電動窗簾。", "他最喜歡的飲料包括美式咖啡、香蕉奶、香草拿鐵和草莓奶。", "他認為十七是他的幸福。", "當他訪問日本時，他喜歡去澀谷、原宿和表參道等地方。", "他的 MBTI 人格類型為 ISFJ（根據成員評估）。", "他對養狗、貓、兔子和豚鼠作為寵物很感興趣。", "綽號是天使。"],
@@ -121,6 +147,8 @@
           
           `)
       }
+
+
       $('.card').each(function (index) {
         const number = index % 13 + 1
         console.log(index, number)
@@ -134,7 +162,34 @@
         $('.card').eq(randomA).insertAfter($('.card').eq(randomB))
       }
 
+      function startTimer() {
+        timer = setInterval(function () {
+          time += 10
+          updateTimerDisplay()
+        }, 10)
+      }
+      function updateTimerDisplay() {
+        const seconds = (time / 1000).toFixed(2)
+        $('#time').text(seconds)
+      }
+
+      function stopTimer() {
+        clearInterval(timer)
+      }
+      function resetTimer() {
+        stopTimer()
+        updateTimerDisplay()
+      }
+
+
       $('#game').on('click', '.card', function () {
+
+        if (!timerStarted) {
+          startTimer();
+          timerStarted = true;
+        }
+
+
         if (
           $('.card:not(.card-close)').length < 2 &&
           $(this).hasClass('card-close') &&
@@ -169,12 +224,23 @@
           setTimeout(function () {
             $('.card:not(.card-close)').addClass('card-close')
             if ($('.card-ok').length === $('.card').length) {
-              alert('過關')
+              Swal.fire({
+                title: "恭喜過關！",
+                text: `您花了${time / 1000}秒`,
+                imageUrl: "https://i.pinimg.com/originals/19/58/bb/1958bb278444256d1d4f835fda11385e.jpg",
+                imageWidth: 400,
+                imageHeight: 200,
+              });
+              resetTimer()
             }
-          }, 1500)
+          }, 1000)
+
+          clickCount++
+          $('#moves').text(clickCount)
 
         }
       })
+
 
     </script>
 
